@@ -11,11 +11,13 @@ struct Person;
 struct GreetTimer(Timer);
 
 // Our first normal system
-fn greet_people(time: Res<Time>, mut timer: ResMut<GreetTimer>, _person: &Person, name: &Name) {
+fn greet_people(time: Res<Time>, mut timer: ResMut<GreetTimer>, query: Query<(&Person, &Name)>) {
     timer.0.tick(time.delta_seconds);
 
     if timer.0.finished {
-        println!("hello, {}!", name.0);
+        for (_person, name) in query.iter() {
+            println!("hello, {}!", name.0);
+        }
     }
 }
 
