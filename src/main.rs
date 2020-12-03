@@ -62,4 +62,9 @@ fn player_control(
     if input.pressed(KeyCode::S) {
         transform.translation += Vec3::new(0.0, -time.delta_seconds * SPEED, 0.0);
     }
+
+    const ROTATION_SPEED: f32 = 1.0;
+    if input.pressed(KeyCode::Z) {
+        transform.rotation = Quat::from_rotation_z(transform.rotation.to_axis_angle().1 + time.delta_seconds * ROTATION_SPEED);
+    }
 }
