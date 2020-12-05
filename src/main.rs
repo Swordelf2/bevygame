@@ -1,8 +1,12 @@
 use bevy::prelude::*;
-
+use core::f32::consts::PI;
 
 // Marker component
 struct Player;
+
+struct Danger {
+    location: Transform
+}
 
 fn main() {
     App::build()
