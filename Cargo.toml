@@ -1,6 +1,6 @@
 [package]
 name = "bevygame"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Evgeny Papazyan <swordelf@mail.ru>"]
 edition = "2018"
 
@@ -8,3 +8,4 @@ edition = "2018"
 
 [dependencies]
 bevy = "0.5" # make sure this is the latest version
+image = "0.23"
