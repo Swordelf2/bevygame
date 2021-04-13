@@ -18,6 +18,7 @@ fn main() {
         // Startup system
         .add_startup_system(setup::setup.system())
         // Systems
+        .add_system(systems::animation.system())
         .add_system(systems::player_control.system())
         .add_system(systems::collision.system())
         .add_system(systems::score.system())

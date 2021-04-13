@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::components::{Collider, Player};
+use crate::components::{Animation, Collider, Player};
 use crate::config::CELL_SIZE;
 use crate::resources::StartPos;
 
@@ -8,10 +8,19 @@ pub fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
+    mut atlas_assets: ResMut<Assets<TextureAtlas>>,
 ) {
-    // Load player and princess textures
-    let player_material_handle = materials.add(asset_server.load("player.png").into());
-    let princess_material_handle = materials.add(asset_server.load("princess.png").into());
+    // Load princess texture
+    let princess_material_handle = materials.add(asset_server.load("textures/princess.png").into());
+
+    // Load player texture atlas
+    let (player_atlas_len, player_atlas_handle) = {
+        let texture_handle = asset_server.load("textures/player/player.png");
+        let atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(720.0, 490.0), 18, 1);
+        // let something_handle = asset_server.get_handle("path to something within the atlas");
+        // let something_index = atlas.get_texture_index(&something_handle).unwrap();
+        (atlas.textures.len(), atlas_assets.add(atlas))
+    };
 
     // Load map image
     let map_img = image::open("assets/map.png")
@@ -45,15 +54,20 @@ pub fn setup(
             [0, 255, 0] => {
                 // Spawn player
                 commands
-                    .spawn_bundle(SpriteBundle {
-                        material: player_material_handle.clone(),
+                    .spawn_bundle(SpriteSheetBundle {
                         transform: Transform::from_translation(Vec3::new(
                             cell_pos_x, cell_pos_y, 0.2,
                         )),
-                        sprite: Sprite::new(Vec2::new(CELL_SIZE, CELL_SIZE)),
+                        sprite: TextureAtlasSprite::new(0),
+                        texture_atlas: player_atlas_handle.clone(),
                         ..Default::default()
                     })
-                    .insert(Player::default());
+                    .insert(Player::default())
+                    .insert(Timer::from_seconds(0.03, true))
+                    .insert(Animation {
+                        len: player_atlas_len as u32,
+                    });
+
                 // Store the start position as a resource
                 commands.insert_resource(StartPos {
                     x: cell_pos_x,
