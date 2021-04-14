@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::components::{Animation, Collider, Player};
+use crate::components::{Collider, Player};
 use crate::config::CELL_SIZE;
 use crate::resources::StartPos;
 
@@ -8,11 +8,14 @@ pub fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    mut atlas_assets: ResMut<Assets<TextureAtlas>>,
 ) {
+    // Load player texture
+    let player_material_handle = materials.add(asset_server.load("textures/player.png").into());
+
     // Load princess texture
     let princess_material_handle = materials.add(asset_server.load("textures/princess.png").into());
 
+    /*
     // Load player texture atlas
     let (player_atlas_len, player_atlas_handle) = {
         let texture_handle = asset_server.load("textures/player/player.png");
@@ -21,6 +24,7 @@ pub fn setup(
         // let something_index = atlas.get_texture_index(&something_handle).unwrap();
         (atlas.textures.len(), atlas_assets.add(atlas))
     };
+    */
 
     // Load map image
     let map_img = image::open("assets/map.png")
@@ -54,20 +58,22 @@ pub fn setup(
             [0, 255, 0] => {
                 // Spawn player
                 commands
-                    .spawn_bundle(SpriteSheetBundle {
+                    .spawn_bundle(SpriteBundle {
+                        material: player_material_handle.clone(),
                         transform: Transform::from_translation(Vec3::new(
                             cell_pos_x, cell_pos_y, 0.2,
                         )),
-                        sprite: TextureAtlasSprite::new(0),
-                        texture_atlas: player_atlas_handle.clone(),
+                        sprite: Sprite::new(Vec2::new(CELL_SIZE, CELL_SIZE)),
                         ..Default::default()
                     })
                     .insert(Player::default())
-                    .insert(Timer::from_seconds(0.03, true))
-                    .insert(Animation {
-                        len: player_atlas_len as u32,
+                    // Spawn child camera
+                    .with_children(|parent| {
+                        let mut camera = OrthographicCameraBundle::new_2d();
+                        // TODO camera bug: hazard are drawn with this line ??
+                        // camera.transform.translation.z = 999.5; 
+                        parent.spawn_bundle(camera);
                     });
-
                 // Store the start position as a resource
                 commands.insert_resource(StartPos {
                     x: cell_pos_x,
@@ -79,7 +85,7 @@ pub fn setup(
                 // Spawn a hazard cell
                 commands
                     .spawn_bundle(SpriteBundle {
-                        material: materials.add(Color::rgb(0.0, 0.0, 0.9).into()),
+                        material: materials.add(Color::rgb(0.0, 0.0, 0.95).into()),
                         transform: Transform::from_translation(Vec3::new(
                             cell_pos_x, cell_pos_y, 0.1,
                         )),
@@ -91,8 +97,4 @@ pub fn setup(
             _ => {}
         }
     }
-
-    // Spawn camera
-    let camera = OrthographicCameraBundle::new_2d();
-    commands.spawn_bundle(camera);
 }
