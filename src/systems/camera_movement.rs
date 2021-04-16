@@ -3,12 +3,10 @@ use bevy::render::camera::Camera;
 
 use crate::components::Player;
 
-pub fn camera_movement(
-    mut q: QuerySet<(
-        Query<&mut Transform, With<Camera>>,
-        Query<&Transform, With<Player>>,
-    )>,
-) {
+type CameraQuery<'a> = Query<'a, &'a mut Transform, With<Camera>>;
+type PlayerQuery<'a> = Query<'a, &'a Transform, With<Player>>;
+
+pub fn camera_movement(mut q: QuerySet<(CameraQuery, PlayerQuery)>) {
     // Retrieve player's position and size
     let player_transform = q.q1().single().expect("Player entity not found");
     let player_pos = *player_transform.translation;

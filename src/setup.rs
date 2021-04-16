@@ -28,7 +28,7 @@ pub fn setup(
 
     // Load map image
     let map_img = image::open(paths::MAP)
-        .expect(&format!("File {} not found", paths::MAP))
+        .unwrap()
         .into_rgb8();
 
     // Iterate over the pixels of the image and spawn corresponding cells (player and hazards)
@@ -71,7 +71,8 @@ pub fn setup(
                     .with_children(|parent| {
                         let mut camera = OrthographicCameraBundle::new_2d();
                         // TODO camera bug: hazard are drawn with this line ??
-                        // camera.transform.translation.z = 999.5;
+                        // absolute z should be = `far` - `eps`
+                        camera.transform.translation.z = 1000.0 - 0.5 - 0.2;
                         parent.spawn_bundle(camera);
                     });
                 // Store the start position as a resource

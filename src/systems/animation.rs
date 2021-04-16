@@ -13,7 +13,7 @@ pub fn animation(
             if sprite.index + 1 >= animation.len {
                 sprite.index = 0;
             } else {
-                sprite.index = sprite.index + 1;
+                sprite.index += 1;
             }
         }
     }
