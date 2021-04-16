@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::components::{Collider, Player};
-use crate::config::CELL_SIZE;
+use crate::config::{mapcolors, paths, CELL_SIZE};
 use crate::resources::StartPos;
 
 pub fn setup(
@@ -10,10 +10,10 @@ pub fn setup(
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     // Load player texture
-    let player_material_handle = materials.add(asset_server.load("textures/player.png").into());
+    let player_material_handle = materials.add(asset_server.load(paths::PLAYER_SPRITE).into());
 
     // Load princess texture
-    let princess_material_handle = materials.add(asset_server.load("textures/princess.png").into());
+    let princess_material_handle = materials.add(asset_server.load(paths::PRINCESS_SPRITE).into());
 
     /*
     // Load player texture atlas
@@ -27,8 +27,8 @@ pub fn setup(
     */
 
     // Load map image
-    let map_img = image::open("assets/map.png")
-        .expect("File map.png not found")
+    let map_img = image::open(paths::MAP)
+        .expect(&format!("File {} not found", paths::MAP))
         .into_rgb8();
 
     // Iterate over the pixels of the image and spawn corresponding cells (player and hazards)
@@ -41,7 +41,7 @@ pub fn setup(
 
         match pixel.0 {
             // Red = Princess (finish cell)
-            [255, 0, 0] => {
+            mapcolors::PRINCESS => {
                 // Spawn princess
                 commands
                     .spawn_bundle(SpriteBundle {
@@ -55,7 +55,7 @@ pub fn setup(
                     .insert(Collider::Princess);
             }
             // Green = Start cell
-            [0, 255, 0] => {
+            mapcolors::PLAYER => {
                 // Spawn player
                 commands
                     .spawn_bundle(SpriteBundle {
@@ -71,7 +71,7 @@ pub fn setup(
                     .with_children(|parent| {
                         let mut camera = OrthographicCameraBundle::new_2d();
                         // TODO camera bug: hazard are drawn with this line ??
-                        // camera.transform.translation.z = 999.5; 
+                        // camera.transform.translation.z = 999.5;
                         parent.spawn_bundle(camera);
                     });
                 // Store the start position as a resource
@@ -81,7 +81,7 @@ pub fn setup(
                 });
             }
             // Blue = Hazard cell
-            [0, 0, 255] => {
+            mapcolors::HAZARD => {
                 // Spawn a hazard cell
                 commands
                     .spawn_bundle(SpriteBundle {
